@@ -151,6 +151,7 @@ class Population:
 
         return new_path
 
+    # Add other params
     def evolutionary_algorithm(self, repetitions: int):
 
         # Repeat x times for the generations
