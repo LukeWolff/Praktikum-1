@@ -102,8 +102,12 @@ class Population:
         temp_list = []
         # Chance for random mutation
         for child in children:
-            if random.uniform(0, 1) <= mutation_chance:
-                child.mutate()
+            # TODO Check conformance
+            chance = random.uniform(0, 1)
+            if chance <= mutation_chance:
+                mutations_per_child = int(len(child.path)*chance)
+                for x in range(0, mutations_per_child):
+                    child.mutate()
             temp_list.append(child)
 
         return temp_list
@@ -153,15 +157,14 @@ class Population:
         return new_path
 
     # Add other params
-    def evolutionary_algorithm(self, repetitions: int):
+    def evolutionary_algorithm(self, repetitions: int, crossover_points: int, mutation_chance: float):
 
         # Repeat x times for the generations
         for count in range(0, repetitions):
-            # TODO Fix other parameters
             parent_pairs = self.mating_selection(self.population_size)
             children = []
-            for p_par in parent_pairs:
-                temp = self.variation(p_par, 2, 0.3)
+            for parent_pair in parent_pairs:
+                temp = self.variation(parent_pair, crossover_points, mutation_chance)
                 children.append(temp[0])
                 children.append(temp[1])
             self.survival_selection(SurvivalSelectionType.PLUS_SELECTION, children.copy())
