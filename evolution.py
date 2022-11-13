@@ -77,6 +77,7 @@ class Population:
         return tuple_list
 
     # Currently only random parents
+    # Select best parents together
     def mating_selection(self, children_count: int):
         parent_count = int(children_count / 2)
         parent_tuple: list[(Individual, Individual)] = []
