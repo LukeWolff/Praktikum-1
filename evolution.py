@@ -65,8 +65,8 @@ class Population:
             ranking_list.append((x, x.get_fitness()))
 
         ranking_list = self.sort_tuple_list(ranking_list)
-
         best_individuals = []
+
         # Select the best and create the new population
         for y in range(self.population_size):
             best_individuals.append(ranking_list[y][0])
@@ -80,9 +80,13 @@ class Population:
     def mating_selection(self, children_count: int):
         parent_count = int(children_count / 2)
         parent_tuple: list[(Individual, Individual)] = []
+
+        available_parents = self.population.copy()
         for count in range(0, parent_count):
-            parent_one = random.choice(self.population)
-            parent_two = random.choice(self.population)
+            parent_one = random.choice(available_parents)
+            available_parents.remove(parent_one)
+            parent_two = random.choice(available_parents)
+            available_parents.remove(parent_two)
             parent_tuple.append((parent_one, parent_two))
 
         return parent_tuple
@@ -104,6 +108,7 @@ class Population:
         return temp_list
 
     def crossover(self, parents, crossover_points: int):
+
         # Crossover Algo implementation
         crosses_parent_one = numpy.array_split(parents[0].path, crossover_points)
         crosses_parent_two = numpy.array_split(parents[1].path, crossover_points)
@@ -150,7 +155,8 @@ class Population:
 
         # Repeat x times for the generations
         for count in range(0, repetitions):
-            parent_pairs = self.mating_selection(20)
+            # TODO Fix other parameters
+            parent_pairs = self.mating_selection(self.population_size)
             children = []
             for p_par in parent_pairs:
                 temp = self.variation(p_par, 2, 0.3)
