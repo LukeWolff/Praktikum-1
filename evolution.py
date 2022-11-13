@@ -30,8 +30,8 @@ class Individual:
         node_to_replace_with = random.choice(self.path)
         index_to_replace = self.path.index(node_to_replace)
         index_to_replace_with = self.path.index(node_to_replace_with)
-        self.path.insert(index_to_replace, node_to_replace_with)
-        self.path.insert(index_to_replace_with, node_to_replace)
+        self.path[index_to_replace] = node_to_replace_with
+        self.path[index_to_replace_with] = node_to_replace
 
 
 class Population:
@@ -78,7 +78,7 @@ class Population:
 
     # Currently only random parents
     def mating_selection(self, children_count: int):
-        parent_count = int(children_count/2)
+        parent_count = int(children_count / 2)
         parent_tuple: list[(Individual, Individual)] = []
         for count in range(0, parent_count):
             parent_one = random.choice(self.population)
@@ -120,10 +120,10 @@ class Population:
     def cross_arrays(self, array_one, array_two):
         new_crosses: list[list[int]] = []
         for number in range(0, len(array_one)):
-            #Even
-            if number%2 == 0:
+            # Even
+            if number % 2 == 0:
                 new_crosses.append(array_one[number])
-            #Odd
+            # Odd
             else:
                 new_crosses.append(array_two[number])
 
@@ -160,5 +160,3 @@ class Population:
 
         for indi in self.population:
             print(indi.get_fitness())
-
-
