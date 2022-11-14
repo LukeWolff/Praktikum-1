@@ -19,7 +19,15 @@ class Individual:
         fitness = 0
         for count in range(len(self.path) - 1):
             fitness += tspProblem.get_weight(self.path[count], self.path[count + 1])
+
+        # Return to start point
+        fitness += tspProblem.get_weight(self.path[len(self.path)-1], self.path[0])
         return fitness
+
+    def get_return_path(self):
+        return_list = self.path.copy()
+        return_list.append(self.path[0])
+        return return_list
 
     def randomize_path(self):
         random.shuffle(self.path)
@@ -77,6 +85,7 @@ class Population:
         return tuple_list
 
     # Currently only random parents
+    # Currently only one partner for each other
     # Select best parents together
     def mating_selection(self, children_count: int):
         parent_count = int(children_count / 2)
@@ -94,25 +103,27 @@ class Population:
 
     # Param for chance to mutate
     # Param how many crossover points
-    def variation(self, parents, crossover_points: int, mutation_chance: float):
+    def variation(self, parents, crossover_points: int, standard_deviation: float):
 
         # Crossover
         children = self.crossover(parents, crossover_points)
 
         temp_list = []
+
         # Chance for random mutation
         for child in children:
-            # TODO Check conformance
-            chance = random.uniform(0, 1)
-            if chance <= mutation_chance:
-                mutations_per_child = int(len(child.path)*chance)
-                for x in range(0, mutations_per_child):
-                    child.mutate()
+            mutations_per_child = abs(int(numpy.random.normal(0, standard_deviation)))
+            for x in range(0, mutations_per_child):
+                child.mutate()
+
             temp_list.append(child)
 
         return temp_list
 
     def crossover(self, parents, crossover_points: int):
+        # At least one cross
+        crossover_points += 1
+        crossover_points = max(crossover_points, 2)
 
         # Crossover Algo implementation
         crosses_parent_one = numpy.array_split(parents[0].path, crossover_points)
@@ -139,7 +150,6 @@ class Population:
 
         new_path = []
         for arr in new_crosses:
-            # TODO Check
             new_path = [*new_path, *arr]
 
         # Check if a value is missing and add at the end
@@ -153,21 +163,24 @@ class Population:
             if count_of_node > 1:
                 for i in range(1, count_of_node):
                     new_path.remove(temp_node_remove)
-
         return new_path
 
     # Add other params
-    def evolutionary_algorithm(self, repetitions: int, crossover_points: int, mutation_chance: float):
+    def evolutionary_algorithm(self, repetitions: int, crossover_points: int, standard_deviation: float):
 
         # Repeat x times for the generations
         for count in range(0, repetitions):
             parent_pairs = self.mating_selection(self.population_size)
             children = []
             for parent_pair in parent_pairs:
-                temp = self.variation(parent_pair, crossover_points, mutation_chance)
+                temp = self.variation(parent_pair, crossover_points, standard_deviation)
                 children.append(temp[0])
                 children.append(temp[1])
+
             self.survival_selection(SurvivalSelectionType.PLUS_SELECTION, children.copy())
+            # TODO Remove
+            # print("Best from " + str(count) + " generation")
+            # print(self.population[0].get_fitness())
 
         for indi in self.population:
-            print(indi.get_fitness())
+            print(indi.get_fitness(), indi.get_return_path())
